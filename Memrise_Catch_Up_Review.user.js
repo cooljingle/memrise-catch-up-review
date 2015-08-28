@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review/
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.1.0
+// @version        0.1.1
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -27,7 +27,7 @@ $(document).ready(function() {
                             thing_id: response.thinguser.thing_id,
                             column_a: response.thinguser.column_a,
                             column_b: response.thinguser.column_b
-                        }).thinguser.thinguser_dict.last_date
+                        }).thinguser.thinguser_dict.last_date || new Date()
                     ),
                     currentDate = new Date(response.thinguser.last_date),
                     nextDate = new Date(response.thinguser.next_date),
