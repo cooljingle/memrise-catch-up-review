@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.1.3
+// @version        0.1.4
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -41,6 +41,15 @@ $(document).ready(function() {
 
                     if (response.thinguser.growth_level === initialLevel + catchUpCount) {
                         catchUpCount++;
+                        if(catchUpCount > 8){
+                            var errorMsg = "Catch Up Review Script catchUps exceeded the theoretical limit. " + 
+                                "Next date = " + nextDate + 
+                                ", Current date = " + currentDate + 
+                                ", Last date = " + lastDate + 
+                                ", Future gap = " + (nextDate - currentDate) + 
+                                ", Past gap = " + Math.min(currentDate - lastDate, MAX_INTERVAL);
+                            throw errorMsg;
+                        }
                         settings.data = settings.data.replace(/catchups=\d+/, "catchups=" + catchUpCount);
                         MEMRISE.garden.stats.show_message("Catch Up Review +" + catchUpCount);
                     }
