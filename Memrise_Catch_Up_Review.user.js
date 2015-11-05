@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.1.4
+// @version        0.1.5
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -31,7 +31,7 @@ $(document).ready(function() {
                     ),
                     currentDate = new Date(response.thinguser.last_date),
                     nextDate = new Date(response.thinguser.next_date),
-                    requiresCatchUp = (nextDate - currentDate) < Math.min(currentDate - lastDate, MAX_INTERVAL);
+                    requiresCatchUp = dateDiff(currentDate, nextDate) < Math.min(dateDiff(lastDate, currentDate), MAX_INTERVAL);
 
                 if (requiresCatchUp) {
                     if (catchUpCount === 0) {
@@ -65,5 +65,9 @@ $(document).ready(function() {
         var regex = new RegExp(name + "=([^&]+)");
         var match = formData.match(regex);
         return match && match[1];
+    }    
+    
+    function dateDiff(dateBefore, dateAfter) {
+        return dateAfter - dateBefore - ((dateAfter.getTimezoneOffset() - dateBefore.getTimezoneOffset()) * 60 * 1000)
     }
 });
