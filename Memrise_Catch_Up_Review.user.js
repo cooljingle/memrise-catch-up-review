@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.1.6
+// @version        0.1.7
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -12,18 +12,20 @@
 
 $(document).ready(function() {
     var MAX_INTERVAL_DAYS = 180,
-        MAX_INTERVAL = MAX_INTERVAL_DAYS * 24 * 60 * 60 * 1000; 
+        MAX_INTERVAL = MAX_INTERVAL_DAYS * 24 * 60 * 60 * 1000,
+        MAX_CATCHUPS = 8;
 
     $(document).ajaxSuccess(
         function(event, request, settings) {
             var response = request.responseJSON,
-                correctAnswer = !!((response && response.thinguser && response.thinguser.current_streak > 0) || getValue(settings.data, "intervalReset") === "true"),
+                correctAnswer = !!(response && response.thinguser && (response.thinguser.current_streak > 0 || getValue(settings.data, "intervalReset") === "true")),
                 shouldNotUpdate = settings.data && getValue(settings.data, "update_scheduling") === "false";
 
             if (correctAnswer && !shouldNotUpdate) {
                 var catchUpCount = parseInt(getValue(settings.data, "catchups"), 10) || 0,
                     initialLevel = parseInt(getValue(settings.data, "initialLevel"), 10) || response.thinguser.growth_level,
-                    lastDate = new Date(getValue(settings.data, "lastDate") || 
+                    isIntervalResetting = getValue(settings.data, "intervalReset") === "true",
+                    lastDate = new Date(getValue(settings.data, "lastDate") ||
                         MEMRISE.garden.boxes._list && _.findWhere(MEMRISE.garden.boxes._list, {
                             thing_id: response.thinguser.thing_id,
                             column_a: response.thinguser.column_a,
@@ -32,7 +34,8 @@ $(document).ready(function() {
                     ),
                     currentDate = new Date(response.thinguser.last_date),
                     nextDate = new Date(response.thinguser.next_date),
-                    requiresCatchUp = dateDiff(currentDate, nextDate) < Math.min(dateDiff(lastDate, currentDate), MAX_INTERVAL),
+                    hasInsufficientNextDate = dateDiff(currentDate, nextDate) < Math.min(dateDiff(lastDate, currentDate), MAX_INTERVAL),
+                    requiresCatchUp = hasInsufficientNextDate && (catchUpCount <= MAX_CATCHUPS || isIntervalResetting),
                     requiresIntervalReset = response.thinguser.interval > MAX_INTERVAL_DAYS;
 
                 if (requiresCatchUp) {
@@ -43,12 +46,12 @@ $(document).ready(function() {
 
                     if (response.thinguser.growth_level === initialLevel + catchUpCount) {
                         catchUpCount++;
-                        if(catchUpCount > 8){
-                            var errorMsg = "Catch Up Review Script catchUps exceeded the theoretical limit. " + 
-                                "Next date = " + nextDate + 
-                                ", Current date = " + currentDate + 
-                                ", Last date = " + lastDate + 
-                                ", Future gap = " + (nextDate - currentDate) + 
+                        if (catchUpCount > 8) {
+                            var errorMsg = "Catch Up Review Script catchUps exceeded the theoretical limit. " +
+                                "Next date = " + nextDate +
+                                ", Current date = " + currentDate +
+                                ", Last date = " + lastDate +
+                                ", Future gap = " + (nextDate - currentDate) +
                                 ", Past gap = " + Math.min(currentDate - lastDate, MAX_INTERVAL);
                             throw errorMsg;
                         }
@@ -57,12 +60,12 @@ $(document).ready(function() {
                     }
                     $.post(settings.url, settings.data);
                 }
-            }
-            
-            if(requiresIntervalReset) {
-                settings.data = settings.data.replace(/points=\d+/, "points=0&intervalReset=true").replace(/score=\d+/, "score=0");
-                MEMRISE.garden.stats.show_message("Interval Reset..");
-                $.post(settings.url, settings.data);
+
+                if (requiresIntervalReset) {
+                    settings.data = settings.data.replace(/points=\d+/, "points=0&intervalReset=true").replace(/score=\d+/, "score=0");
+                    MEMRISE.garden.stats.show_message("Interval Reset..");
+                    $.post(settings.url, settings.data);
+                }
             }
         }
     );
@@ -73,9 +76,9 @@ $(document).ready(function() {
         var regex = new RegExp(name + "=([^&]+)");
         var match = formData.match(regex);
         return match && match[1];
-    }    
-    
+    }
+
     function dateDiff(dateBefore, dateAfter) {
-        return dateAfter - dateBefore - ((dateAfter.getTimezoneOffset() - dateBefore.getTimezoneOffset()) * 60 * 1000)
+        return dateAfter - dateBefore - ((dateAfter.getTimezoneOffset() - dateBefore.getTimezoneOffset()) * 60 * 1000);
     }
 });
