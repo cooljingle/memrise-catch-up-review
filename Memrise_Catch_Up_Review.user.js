@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.1.7
+// @version        0.1.8
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -37,11 +37,19 @@ $(document).ready(function() {
                     hasInsufficientNextDate = dateDiff(currentDate, nextDate) < Math.min(dateDiff(lastDate, currentDate), MAX_INTERVAL),
                     requiresCatchUp = hasInsufficientNextDate && (catchUpCount <= MAX_CATCHUPS || isIntervalResetting),
                     requiresIntervalReset = response.thinguser.interval > MAX_INTERVAL_DAYS;
-
-                if (requiresCatchUp) {
+                
+                if (requiresIntervalReset) {
+                    settings.data = settings.data.replace(/points=\d+/, "points=0&intervalReset=true").replace(/score=\d+/, "score=0");
+                    MEMRISE.garden.stats.show_message("Interval Reset..");
+                    $.post(settings.url, settings.data);
+                } else if (requiresCatchUp) {
                     if (catchUpCount === 0) {
                         settings.data = settings.data.replace(/points=\d+/,
                             "points=0&lastDate=" + lastDate.toISOString() + "&initialLevel=" + response.thinguser.growth_level + "&catchups=0");
+                    }
+                    
+                    if (isIntervalResetting && getValue(settings.data, "score") === "0") {
+                        settings.data = settings.data.replace(/score=\d+/, "score=1");
                     }
 
                     if (response.thinguser.growth_level === initialLevel + catchUpCount) {
@@ -58,12 +66,6 @@ $(document).ready(function() {
                         settings.data = settings.data.replace(/catchups=\d+/, "catchups=" + catchUpCount);
                         MEMRISE.garden.stats.show_message("Catch Up Review +" + catchUpCount);
                     }
-                    $.post(settings.url, settings.data);
-                }
-
-                if (requiresIntervalReset) {
-                    settings.data = settings.data.replace(/points=\d+/, "points=0&intervalReset=true").replace(/score=\d+/, "score=0");
-                    MEMRISE.garden.stats.show_message("Interval Reset..");
                     $.post(settings.url, settings.data);
                 }
             }
