@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.1.8
+// @version        0.1.9
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -36,7 +36,7 @@ $(document).ready(function() {
                     nextDate = new Date(response.thinguser.next_date),
                     hasInsufficientNextDate = dateDiff(currentDate, nextDate) < Math.min(dateDiff(lastDate, currentDate), MAX_INTERVAL),
                     requiresCatchUp = hasInsufficientNextDate && (catchUpCount <= MAX_CATCHUPS || isIntervalResetting),
-                    requiresIntervalReset = response.thinguser.interval > MAX_INTERVAL_DAYS;
+                    requiresIntervalReset = response.thinguser.interval.toPrecision(2) > MAX_INTERVAL_DAYS;
                 
                 if (requiresIntervalReset) {
                     settings.data = settings.data.replace(/points=\d+/, "points=0&intervalReset=true").replace(/score=\d+/, "score=0");
