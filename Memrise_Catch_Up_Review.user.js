@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.2.0
+// @version        0.2.1
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -18,13 +18,16 @@ $(document).ready(function() {
     $(document).ajaxSuccess(
         function(event, request, settings) {
             var response = request.responseJSON,
-                correctAnswer = !!(response && response.thinguser && (response.thinguser.current_streak > 0 || getValue(settings.data, "intervalReset") === "true")),
-                shouldNotUpdate = settings.data && getValue(settings.data, "update_scheduling") === "false";
+                correctAnswer = getValue(settings.data, "score") === "1",
+                boxTemplate = getValue(settings.data, "box_template"),
+                isTestBox = boxTemplate && MEMRISE.garden.box_mapping[boxTemplate].prototype instanceof MEMRISE.garden.box_types.TestBox;
+                isIntervalResetting = getValue(settings.data, "intervalReset") === "true",
+                validRequest = !!(response && response.thinguser && ((correctAnswer && isTestBox)|| isIntervalResetting)),
+                shouldNotUpdate = getValue(settings.data, "update_scheduling") === "false";
 
-            if (correctAnswer && !shouldNotUpdate) {
+            if (validRequest && !shouldNotUpdate) {
                 var catchUpCount = parseInt(getValue(settings.data, "catchups"), 10) || 0,
                     initialLevel = parseInt(getValue(settings.data, "initialLevel"), 10) || response.thinguser.growth_level,
-                    isIntervalResetting = getValue(settings.data, "intervalReset") === "true",
                     lastDate = new Date(getValue(settings.data, "lastDate") ||
                         MEMRISE.garden.boxes._list && _.findWhere(MEMRISE.garden.boxes._list, {
                             thing_id: response.thinguser.thing_id,
@@ -76,7 +79,7 @@ $(document).ready(function() {
 
     function getValue(formData, name) {
         var regex = new RegExp(name + "=([^&]+)");
-        var match = formData.match(regex);
+        var match = (formData || "").match(regex);
         return match && match[1];
     }
 
