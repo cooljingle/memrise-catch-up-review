@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.2.1
+// @version        0.2.2
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -37,20 +37,21 @@ $(document).ready(function() {
                     ),
                     currentDate = new Date(response.thinguser.last_date),
                     nextDate = new Date(response.thinguser.next_date),
-                    hasInsufficientNextDate = dateDiff(currentDate, nextDate) < Math.min(dateDiff(lastDate, currentDate), MAX_INTERVAL),
+                    hasInsufficientNextDate = (nextDate - currentDate) < Math.min((currentDate - lastDate), MAX_INTERVAL),
                     requiresCatchUp = hasInsufficientNextDate && (catchUpCount < MAX_CATCHUPS || isIntervalResetting),
                     requiresIntervalReset = response.thinguser.interval.toPrecision(2) > MAX_INTERVAL_DAYS;
-                
+
                 if (requiresIntervalReset) {
                     settings.data = settings.data.replace(/points=\d+/, "points=0&intervalReset=true").replace(/score=\d+/, "score=0");
                     MEMRISE.garden.stats.show_message("Interval Reset..");
                     $.post(settings.url, settings.data);
                 } else if (requiresCatchUp) {
+
                     if (catchUpCount === 0) {
                         settings.data = settings.data.replace(/points=\d+/,
                             "points=0&lastDate=" + lastDate.toISOString() + "&initialLevel=" + response.thinguser.growth_level + "&catchups=0");
                     }
-                    
+
                     if (isIntervalResetting && getValue(settings.data, "score") === "0") {
                         settings.data = settings.data.replace(/score=\d+/, "score=1");
                     }
@@ -81,9 +82,5 @@ $(document).ready(function() {
         var regex = new RegExp(name + "=([^&]+)");
         var match = (formData || "").match(regex);
         return match && match[1];
-    }
-
-    function dateDiff(dateBefore, dateAfter) {
-        return dateAfter - dateBefore - ((dateAfter.getTimezoneOffset() - dateBefore.getTimezoneOffset()) * 60 * 1000);
     }
 });
