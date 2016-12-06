@@ -4,7 +4,7 @@
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
 // @match          http://www.memrise.com/course/*/garden/review*
 // @match          http://www.memrise.com/garden/review/*
-// @version        0.2.2
+// @version        0.2.3
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
@@ -20,7 +20,7 @@ $(document).ready(function() {
             var response = request.responseJSON,
                 correctAnswer = getValue(settings.data, "score") === "1",
                 boxTemplate = getValue(settings.data, "box_template"),
-                isTestBox = boxTemplate && MEMRISE.garden.box_mapping[boxTemplate].prototype instanceof MEMRISE.garden.box_types.TestBox;
+                isTestBox = boxTemplate && MEMRISE.garden.box_mapping[boxTemplate].prototype instanceof MEMRISE.garden.box_types.TestBox,
                 isIntervalResetting = getValue(settings.data, "intervalReset") === "true",
                 validRequest = !!(response && response.thinguser && ((correctAnswer && isTestBox)|| isIntervalResetting)),
                 shouldNotUpdate = getValue(settings.data, "update_scheduling") === "false";
