@@ -2,9 +2,9 @@
 // @name           Memrise Catch Up Review
 // @namespace      https://github.com/cooljingle
 // @description    Fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly
-// @match          http://www.memrise.com/course/*/garden/review*
-// @match          http://www.memrise.com/garden/review/*
-// @version        0.2.3
+// @match          https://www.memrise.com/course/*/garden/review*
+// @match          https://www.memrise.com/garden/review/*
+// @version        0.2.4
 // @updateURL      https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @downloadURL    https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 // @grant          none
