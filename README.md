@@ -1,3 +1,7 @@
+
+```diff
+- NOTICE: this script is no longer functioning after a Memrise update.
+```
 # Memrise Catch Up Review
 
 Userscript which fast-tracks the growth level of any words that have been left for too long but are still reviewed correctly.
@@ -11,4 +15,6 @@ The easiest method is through an extension/add-on on chrome/firefox:
 
 Then add the script using the following link: https://github.com/cooljingle/memrise-catch-up-review/raw/master/Memrise_Catch_Up_Review.user.js
 
-If you come across any issues or have a suggestion you can leave your feedback in the forum thread: http://www.memrise.com/thread/1365094/
+Old forum thread: http://web.archive.org/web/20160508153738/http://www.memrise.com/thread/1365094/
+
+New forum thread: https://community.memrise.com/t/userscript-catch-up-review-is-now-broken/16627
